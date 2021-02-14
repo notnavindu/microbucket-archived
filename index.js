@@ -50,10 +50,6 @@ io.on("connection", async (socket) => {
 
 // root
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname + "/public/index.html"));
-});
-
-app.get("/microbucket", (req, res) => {
   if (req.cookies.active_bucket) {
     return res.redirect(`/microbucket/${req.cookies.active_bucket}`);
   } else {
@@ -61,13 +57,13 @@ app.get("/microbucket", (req, res) => {
   }
 });
 
-app.get("/microbucket/destroy/:bid", (req, res) => {
+app.get("/destroy/:bid", (req, res) => {
   res.clearCookie("active_bucket");
   delete bucket[req.params.bid];
-  return res.redirect(`/microbucket`);
+  return res.redirect(`/`);
 });
 
-app.get("/microbucket/new", (req, res) => {
+app.get("/new", (req, res) => {
   let rand;
   do {
     rand = Math.round(Math.random() * 10000);
@@ -75,17 +71,17 @@ app.get("/microbucket/new", (req, res) => {
 
   bucket[rand] = 0;
   res.cookie("active_bucket", rand);
-  return res.redirect(`/microbucket/${rand}`);
+  return res.redirect(`/${rand}`);
 });
 
-app.get("/microbucket/:bid", (req, res) => {
+app.get("/:bid", (req, res) => {
   if (!bucket.hasOwnProperty(req.params.bid)) {
     if (req.params.bid > 0 && req.params.bid < 10000) {
       bucket[req.params.bid] = 0;
       res.cookie("active_bucket", req.params.bid);
       return res.sendFile(path.join(__dirname + "/public/bucket.html"));
     } else {
-      return res.redirect("/microbucket/new");
+      return res.redirect("/new");
     }
   }
   res.sendFile(path.join(__dirname + "/public/bucket.html"));
