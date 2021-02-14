@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>[µ] bucket</title>
+
+    <style>
+      body {
+        background-color: #212121;
+        color: #fff;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 800px;
+        margin: auto;
+        margin-top: 2rem;
+      }
+
+      .title {
+        font-size: 2.5rem;
+        margin: 10px;
+      }
+
+      .text-muted {
+        opacity: 0.5;
+      }
+
+      .board {
+        width: 90%;
+        margin: auto;
+        background-color: #303030;
+        border: 1px solid grey;
+        border-radius: 2px;
+        font-size: 1.3rem;
+        display: block;
+        color: #fff;
+      }
+
+      .connected {
+        font-size: 1.2rem;
+        margin-top: 16px;
+      }
+
+      .btn-red {
+        background-color: #212121;
+        border: 1px solid #f00;
+        padding: 10px;
+        border-radius: 4px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
+      .btn-red-full {
+        background-color: #f00;
+      }
+
+      .button-group {
+        display: flex;
+      }
+
+      .btn-red:hover {
+        background-color: #f00;
+      }
+
+      button {
+        margin: 5px;
+      }
+
+      .btn-blue {
+        background-color: #212121;
+        border: 1px solid rgb(0, 140, 255);
+        padding: 10px;
+        border-radius: 4px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
+
+      .btn-blue:hover {
+        background-color: rgb(0, 140, 255);
+      }
+
+      .connection-details {
+        margin-top: 30px;
+      }
+      .blur {
+        margin-top: 1rem;
+        transition: 0.2s ease-out;
+        filter: blur(6px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="title">[µ] Micro Bucket <span class="text-muted">v2</span></div>
+      <div class="text-muted" style="margin-left: 10px">To copy shit between shit.</div>
+      <br />
+
+      <textarea rows="12" class="board" id="board"></textarea>
+      <br />
+      <div style="width: 90%; margin: auto">
+        <div class="button-group">
+          <button onclick="updateClipboard()" class="btn-red">Update</button>
+          <button onclick="copyToClipboard()" class="btn-blue">Copy</button>
+          <button onclick="clearBoard()" class="btn-red btn-red-full" style="margin-left: auto">Clear</button>
+        </div>
+
+        <div class="connection-details">
+          <button onclick="showCode()" id="btn-show" class="btn-blue">Show Bucket Code</button>
+          <div class="blur" id="blur">
+            <div style="font-size: 2rem">Code: <span id="code"></span></div>
+            <canvas id="qr"></canvas>
+          </div>
+        </div>
+
+        <div class="connected">
+          Connected Devices: <span style="color: rgb(255, 184, 184)" id="connectedCount">...</span> <span class="text-muted">(Bit buggy. Might be wrong)</span>
+        </div>
+
+        <br /><br />
+        <button onclick="destroyBucket()" class="btn-red btn-red-full" style="margin-left: auto">Destroy Bucket</button>
+      </div>
+
+      <br /><br />
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script>
+      const id = window.location.pathname.split("/").pop();
+      const $events = document.getElementById("events");
+      document.getElementById("code").innerHTML = id;
+
+      let blurred = true;
+
+      const socket = io();
+
+      socket.on(`count-${id}`, (data) => {
+        if (data != null) {
+          document.getElementById("connectedCount").innerHTML = data >= 0 ? data : 0;
+        }
+      });
+
+      socket.on(id, (t) => {
+        document.getElementById("board").value = t.data;
+      });
+
+      socket.on(`autoupdate-${id}`, (t) => {
+        updateClipboard();
+      });
+
+      // QR Code
+      var qr = new QRious({
+        element: document.getElementById("qr"),
+        size: 200,
+        value: window.location.href,
+      });
+
+      function updateClipboard() {
+        let data = document.getElementById("board").value;
+        socket.emit("update", { data: data, id: id });
+      }
+
+      function showCode() {
+        let blurAmount = blurred ? "blur(0px)" : "blur(6px)";
+        let buttonText = blurred ? "Hide Bucket Code" : "Show Bucket Code";
+
+        blurred = !blurred;
+        document.getElementById("blur").style.webkitFilter = blurAmount;
+        document.getElementById("btn-show").innerHTML = buttonText;
+      }
+
+      function clearBoard() {
+        document.getElementById("board").value = "";
+        updateClipboard();
+      }
+
+      function copyToClipboard() {
+        var copyText = document.getElementById("board");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+      }
+
+      function destroyBucket() {
+        if (confirm("Sure da?")) {
+          window.location.replace(`/microbucket/destroy/${id}`);
+        }
+      }
+    </script>
+  </body>
+</html>
