@@ -40,6 +40,7 @@ io.on("connection", async (socket) => {
 
   socket.on("update", (obj) => {
     socket.broadcast.emit(obj.id, obj);
+    console.log(obj.data);
   });
 
   socket.on("disconnect", () => {
@@ -50,7 +51,6 @@ io.on("connection", async (socket) => {
 
 // root
 app.get("/", (req, res) => {
-  console.log("test");
   if (req.cookies.active_bucket) {
     return res.redirect(`/${req.cookies.active_bucket}`);
   } else {
