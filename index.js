@@ -6,7 +6,7 @@ if (process.env.NODE_ENV !== "production") {
 
 const express = require("express");
 const path = require("path");
-var cookieParser = require("cookie-parser");
+let cookieParser = require("cookie-parser");
 const { v4: uuidv4 } = require("uuid");
 const bucketSession = uuidv4();
 
@@ -50,10 +50,11 @@ io.on("connection", async (socket) => {
 
 // root
 app.get("/", (req, res) => {
+  console.log("test");
   if (req.cookies.active_bucket) {
-    return res.redirect(`/microbucket/${req.cookies.active_bucket}`);
+    return res.redirect(`/${req.cookies.active_bucket}`);
   } else {
-    res.sendFile(path.join(__dirname + "/public/index.html"));
+    res.sendFile(path.join(__dirname + "/public/home.html"));
   }
 });
 
