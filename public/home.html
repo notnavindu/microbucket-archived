@@ -66,6 +66,22 @@
         background-color: #f00;
       }
 
+      .btn-qr {
+        width: 100%;
+        height: 30%;
+        background-color: #000;
+        cursor: pointer;
+        border: 1px solid #0f0;
+        font-size: 2rem;
+        color: #fff;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      .btn-qr:hover {
+        background-color: #0f0;
+      }
+
       .code-input {
         width: 99%;
         margin: auto;
@@ -92,11 +108,27 @@
         <div>
           <input type="number" class="code-input" id="code" placeholder="Enter Code" />
           <button class="btn-join" onclick="joinBucket()">Join Bucket</button>
+          <button class="btn-qr" onclick="startCam()">Scan QR</button>
         </div>
       </div>
-    </div>
 
+      <div id="reader" width="600px"></div>
+
+
+      <button id="stopButton" class="btn-qr" onclick="stopCam()" style="display: none;">Stop</button>
+    </div>
+    <script src="/html5-qrcode.min.js"></script>
     <script>
+      if( navigator.userAgent.match(/Android/i)
+ || navigator.userAgent.match(/webOS/i)
+ || navigator.userAgent.match(/iPhone/i)
+ || navigator.userAgent.match(/iPad/i)
+ || navigator.userAgent.match(/iPod/i)
+ || navigator.userAgent.match(/BlackBerry/i)
+ || navigator.userAgent.match(/Windows Phone/i)){
+   
+ }
+
       function createBucket() {
         window.location.replace("/new");
       }
@@ -109,6 +141,22 @@
           window.location.replace(`/${id}`);
         }
       }
+    </script>
+    <script>
+      const html5QrCode = new Html5Qrcode("reader");
+function startCam(){
+const qrCodeSuccessCallback = message => { window.location.href(message) }
+const config = { fps: 10, qrbox: 250 };
+document.getElementById("reader").style.display="block";
+document.getElementById("stopButton").style.display="block"
+  html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+}
+function stopCam(){
+  html5QrCode.stop().then(ignore=>{
+    document.getElementById("reader").style.display="none"
+    document.getElementById("stopButton").style.display="none"
+  })
+}
     </script>
   </body>
 </html>
