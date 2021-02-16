@@ -123,7 +123,7 @@
             class="btn-qr"
             onclick="startCam()"
             id="scanButton"
-            style=""
+            style="display:none;"
           >
             Scan QR
           </button>
@@ -152,7 +152,7 @@
         navigator.userAgent.match(/BlackBerry/i) ||
         navigator.userAgent.match(/Windows Phone/i)
       ) {
-        //document.getElementById("scanButton").style.display = "block";
+        document.getElementById("scanButton").style.display = "block";
       }
 
       function createBucket() {
@@ -169,13 +169,12 @@
       }
     </script>
     <script>
-              const html5QrCode = new Html5Qrcode("reader");
+      const html5QrCode = new Html5Qrcode("reader");
       function startCam() {
         const qrCodeSuccessCallback = (message) => {
           window.location.href=message;
-          //alert(message)
         };
-        const config = { fps: 500, qrbox: 200 };
+        const config = { fps: 900, qrbox: 300 };
         document.getElementById("reader").style.display = "block";
         document.getElementById("stopButton").style.display = "block";
         html5QrCode.start(
