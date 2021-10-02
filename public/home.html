@@ -66,6 +66,22 @@
         background-color: #f00;
       }
 
+      .btn-qr {
+        width: 100%;
+        height: 30%;
+        background-color: #000;
+        cursor: pointer;
+        border: 1px solid #0f0;
+        font-size: 2rem;
+        color: #fff;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      .btn-qr:hover {
+        background-color: #0f0;
+      }
+
       .code-input {
         width: 99%;
         margin: auto;
@@ -82,21 +98,63 @@
   </head>
   <body>
     <div class="container">
-      <div class="title">[µ] Micro Bucket <span class="text-muted">v2</span></div>
-      <div class="text-muted" style="margin-left: 10px">To copy shit between shit.</div>
+      <div class="title">
+        [µ] Micro Bucket <span class="text-muted">v2</span>
+      </div>
+      <div class="text-muted" style="margin-left: 10px">
+        To copy shit between shit.
+      </div>
       <br />
 
       <div class="sections">
         <button class="btn-create" onclick="createBucket()">New Bucket</button>
-        <div style="text-align: center; padding: 10px; font-size: 1.5rem">- or -</div>
+        <div style="text-align: center; padding: 10px; font-size: 1.5rem">
+          - or -
+        </div>
         <div>
-          <input type="number" class="code-input" id="code" placeholder="Enter Code" />
+          <input
+            type="number"
+            class="code-input"
+            id="code"
+            placeholder="Enter Code"
+          />
           <button class="btn-join" onclick="joinBucket()">Join Bucket</button>
+          <button
+            class="btn-qr"
+            onclick="startCam()"
+            id="scanButton"
+            style="display:none;"
+          >
+            Scan QR
+          </button>
         </div>
       </div>
-    </div>
 
+      <div id="reader" width="600px"></div>
+
+      <button
+        id="stopButton"
+        class="btn-qr"
+        onclick="stopCam()"
+        style="display: none"
+      >
+        Stop
+      </button>
+    </div>
+    <script src="/html5-qrcode.min.js"></script>
     <script>
+      if (
+        navigator.userAgent.match(/Android/i) ||
+        navigator.userAgent.match(/webOS/i) ||
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPad/i) ||
+        navigator.userAgent.match(/iPod/i) ||
+        navigator.userAgent.match(/BlackBerry/i) ||
+        navigator.userAgent.match(/Windows Phone/i)
+      ) {
+        document.getElementById("scanButton").style.display = "block";
+      }
+
       function createBucket() {
         window.location.replace("/new");
       }
@@ -108,6 +166,28 @@
         } else {
           window.location.replace(`/${id}`);
         }
+      }
+    </script>
+    <script>
+      const html5QrCode = new Html5Qrcode("reader");
+      function startCam() {
+        const qrCodeSuccessCallback = (message) => {
+          window.location.href=message;
+        };
+        const config = { fps: 900, qrbox: 300 };
+        document.getElementById("reader").style.display = "block";
+        document.getElementById("stopButton").style.display = "block";
+        html5QrCode.start(
+          { facingMode: "environment" },
+          config,
+          qrCodeSuccessCallback
+        );
+      }
+      function stopCam() {
+        html5QrCode.stop().then((ignore) => {
+          document.getElementById("reader").style.display = "none";
+          document.getElementById("stopButton").style.display = "none";
+        });
       }
     </script>
   </body>
